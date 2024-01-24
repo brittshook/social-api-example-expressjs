@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-// const posts = require("../data/posts");
 const comments = require("../data/comments");
 const error = require("../utilities/error");
 
@@ -20,19 +19,19 @@ router
     ];
 
     if (userId) {
-      const userComments = comments.find((comment) => comment.userId == userId);
+      const userComments = comments.filter((comment) => comment.userId == userId);
       res.json(userComments);
     } else if (postId) {
-      const postComments = comments.find((comment) => comment.postId == postId);
+      const postComments = comments.filter((comment) => comment.postId == postId);
       res.json(postComments);
     } else {
       res.json({ comments, links });
     }
   })
   .post((req, res, next) => {
-    if (req.body.id && req.body.userId && req.body.postId && req.body.body) {
+    if (req.body.userId && req.body.postId && req.body.body) {
       const comment = {
-        id: comments[comments.length - 1].id + 1,
+        id: comments.length + 1,
         userId: req.body.userId,
         postId: req.body.postId,
         body: req.body.body,
@@ -88,20 +87,5 @@ router
     if (comment) res.json(comment);
     else next();
   });
-
-router.route("/:id/comments").get((req, res, next) => {
-  const postId = req.params.id;
-  const userId = req.query.userId;
-  const postComments = comments.find((comment) => comment.postId == postId);
-
-  if (userId) {
-    const filteredComments = postComments.find(
-      (comment) => comment.userId == userId
-    );
-    res.json(filteredComments);
-  } else {
-    res.json(postComments);
-  }
-});
 
 module.exports = router;

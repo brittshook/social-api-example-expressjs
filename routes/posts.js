@@ -19,7 +19,7 @@ router
     ];
 
     if (userId) {
-      const userPosts = posts.find((post) => post.userId == userId);
+      const userPosts = posts.filter((post) => post.userId == userId);
       res.json(userPosts);
     } else {
       res.json({ posts, links });
@@ -87,16 +87,22 @@ router
 
 router.route("/:id/comments").get((req, res, next) => {
   const postId = req.params.id;
-  const userId = req.query.userId;
-  const postComments = comments.find((comment) => comment.postId == postId);
+  const post = posts.map((post) => post.id == postId);
 
-  if (userId) {
-    const filteredComments = postComments.find(
-      (comment) => comment.userId == userId
-    );
-    res.json(filteredComments);
+  if (post && comments) {
+    const postComments = comments.filter((comment) => comment.postId == postId);
+    const userId = req.query.userId;
+
+    if (userId) {
+      const filteredComments = postComments.filter(
+        (comment) => comment.userId == userId
+      );
+      res.json(filteredComments);
+    } else {
+      res.json(postComments);
+    }
   } else {
-    res.json(postComments);
+    next(error(404, "Post not found"));
   }
 });
 

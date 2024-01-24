@@ -87,26 +87,29 @@ router.route("/:id/posts").get((req, res, next) => {
   const user = users.find((u) => u.id == req.params.id);
 
   if (user) {
-    const userPosts = posts.find((post) => post.userId == user.id);
+    const userPosts = posts.filter((post) => post.userId == user.id);
     res.json(userPosts);
   }
 });
 
 router.route("/:id/comments").get((req, res, next) => {
-  const user = users.find((u) => u.id == req.params.id);
-  const postId = req.query.postId;
+  const userId = req.params.id;
+  const user = users.find((u) => u.id == userId);
 
-  if (user) {
-    const userComments = comments.find((comment) => comment.userId == user.id);
+  if (user && comments) {
+    const userComments = comments.filter((comment) => comment.userId == userId);
+    const postId = req.query.postId;
 
     if (postId) {
-      const filteredComments = userComments.find(
+      const filteredComments = userComments.filter(
         (comment) => comment.postId == postId
       );
       res.json(filteredComments);
     } else {
       res.json(userComments);
     }
+  } else {
+    next(error(404, "User not found"));
   }
 });
 
