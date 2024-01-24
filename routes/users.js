@@ -3,6 +3,7 @@ const router = express.Router();
 
 const users = require("../data/users");
 const posts = require("../data/posts");
+const comments = require("../data/comments");
 const error = require("../utilities/error");
 
 router
@@ -91,6 +92,22 @@ router.route("/:id/posts").get((req, res, next) => {
   }
 });
 
-router.route("/:id/comments").get((req, res, next) => {});
+router.route("/:id/comments").get((req, res, next) => {
+  const user = users.find((u) => u.id == req.params.id);
+  const postId = req.query.postId;
+
+  if (user) {
+    const userComments = comments.find((comment) => comment.userId == user.id);
+
+    if (postId) {
+      const filteredComments = userComments.find(
+        (comment) => comment.postId == postId
+      );
+      res.json(filteredComments);
+    } else {
+      res.json(userComments);
+    }
+  }
+});
 
 module.exports = router;
